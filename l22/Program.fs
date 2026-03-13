@@ -21,12 +21,7 @@ let rec readElement () =
     printf "Введите элемент (целое число): "
     let text = Console.ReadLine()
     try
-        let value = int text
-        if value % 1 <> 0 then
-            printfn "Ошибка: нужно ввести целое число."
-            readElement ()
-        else
-            value
+        int text
     with
     | :? FormatException ->
         printfn "Ошибка: нужно ввести число."
@@ -50,32 +45,23 @@ let rec readDigit () =
 
 // Проверяем, оканчивается ли число на заданную цифру
 let endsWithDigit (x: int) (d: int) = 
-    let absInt = abs (int x)
-    absInt % 10 = d
+    abs x % 10 = d
 
 // Сумма элементов последовательности,
-//оканчивающихся на заданную цифру (Seq.fold)
+//оканчивающихся на заданную цифру
 let sumByDigit sequence digit = 
     Seq.fold (fun acc x ->
-        if endsWithDigit x digit then
-            acc + x
-        else
-            acc) 0 sequence
+        if endsWithDigit x digit then acc + x else acc
+    ) 0 sequence
 
 // Диалог с пользователем
-let dialogueUser () = 
+let dialogueUser () =
     let size = readSize()
-    printfn "Введите элементы последовательности:"
-    // читаем элементы один раз
-    let buffer = Array.init size (fun _ -> readElement())
-    // создаём последовательность
-    let numbers = buffer |> Seq.ofArray
+    printfn "Введите последовательность из %d элементов:" size
+    let sequence = seq { for _ in 1 .. size -> readElement() }
     let digit = readDigit()
-    let result = sumByDigit numbers digit
-    printf "Последовательность: "
-    numbers |> Seq.iter (printf "%A ")
-    printfn ""
-    printfn "Сумма эл, оканчивающихся на %d = %d" digit result
+    let sum = sumByDigit sequence digit
+    printfn "Сумма эл, оканчивающихся на %d = %d" digit sum
 
 [<EntryPoint>]
 let main args = 

@@ -20,7 +20,6 @@ let rec readSize () =
 let rec readElement () = 
     printf "Введите элемент: "
     let element = Console.ReadLine()
-
     try
         float element
     with
@@ -28,36 +27,27 @@ let rec readElement () =
         printfn "Ошибка: нужно ввести число."
         readElement ()
 
-(*Создание последовательности
-let createSeq size =
-    seq {
-        for i in 1 .. size do
-            yield readElement()
-    }
-*)
-
-// Преобразуем число в строку и берём последнюю цифру
-let convertintString elements = 
-    let s = string elements                 
-    let s = s.Replace("-", "")  
-    let s = s.Replace(".", "") 
+// Получение последней цифры
+let convertIntString (x: float) = 
+    let s = string x
+    let s = s.Replace("-", "")
+    let s = s.Replace(".", "")
     int (string s.[s.Length - 1])
 
 let dialogueUser () = 
     let size = readSize()
-
     printfn "Введите элементы последовательности:"
 
-    // один раз читаем элементы
-    let buffer = Array.init size (fun _ -> readElement())
-    // создаём последовательность
-    let numbers = buffer |> Seq.ofArray
-    let lastDigits = numbers |> Seq.map convertintString
-    printf "Исходная последовательность: "
-    numbers |> Seq.iter (printf "%A ")
-    printfn ""
-    printf "Последовательность последних цифр: "
-    lastDigits |> Seq.iter (printf "%A ")
+    // Создаём строки сразу в одном ленивом проходе
+    let numbersOutput, digitsOutput =
+        seq { for _ in 1 .. size -> readElement() }
+        |> Seq.fold (fun (nums, digs) n ->
+            let d = convertIntString n
+            (nums + sprintf "%A " n, digs + sprintf "%A " d)
+        ) ("", "")
+
+    printfn "Исходная последовательность: %s" numbersOutput
+    printfn "Последовательность последних цифр: %s" digitsOutput
 
 [<EntryPoint>]
 let main args = 
